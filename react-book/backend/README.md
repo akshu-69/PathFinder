@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Code Café Back-end
 
 This is the back-end server for the Code Café application.
@@ -20,6 +19,3 @@ Run with `npm start`
     - POST `/api/auth/login` with username and password as the JSON body logs in a user and returns 401 if the login is invalid
     - POST `/api/auth/logout` logs out a user
 - GET `/api/employees/isEmployeeOfTheMonth` with name as the search query returns a boolean indicating an employee of the month
-=======
-# PathFinder
->>>>>>> 6f52c05d493a5d95f1820cccf8ec0c1ed20a686e
