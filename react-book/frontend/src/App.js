@@ -19,6 +19,7 @@ import Login from './components/Login';
 import Orders from './components/Orders';
 import Footer from './components/Footer';
 import CareerQuiz from './components/Quiz';
+import Signup from './components/Signup';
 
 const storageKey = 'cart';
 
@@ -84,6 +85,7 @@ function App() {
               </Route>
               <Route path="/" element={<Home items={items} />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
               <Route path="/orders" element={<Orders items={items} />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/Quiz" element={<CareerQuiz />} />

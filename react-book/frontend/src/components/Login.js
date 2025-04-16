@@ -66,7 +66,7 @@ function Login() {
           </div>
           <button type="submit">Log In</button>
           <h4>New Here? Register to our Site</h4>
-          <button type="button">Sign Up</button>
+          <button type="button" onClick={() => navigate('/signup')}>Sign Up</button>
         </form>
       </div>
       <p className="wht-sps" />
