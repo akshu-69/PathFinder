@@ -115,6 +115,7 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   username: 'username',
   password: 'password',
+  cart: 'cart',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

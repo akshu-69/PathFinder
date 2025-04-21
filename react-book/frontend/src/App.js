@@ -21,29 +21,19 @@ import Footer from './components/Footer';
 import CareerQuiz from './components/Quiz';
 import Signup from './components/Signup';
 
-const storageKey = 'cart';
-
 function App() {
   const [items, setItems] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
-  const [cart, dispatch] = useReducer(
-    cartReducer,
-    initialCartState,
-    (initialState) => {
-      try {
-        const storedCart = JSON.parse(localStorage.getItem(storageKey));
-        return storedCart || initialState;
-      } catch (error) {
-        console.log('Error parsing cart', error);
-        return initialState;
-      }
-    },
-  );
-  const addToCart = (itemId) => dispatch({ type: CartTypes.ADD, itemId });
-
-  useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(cart));
-  }, [cart]);
+  const [cartSynced, setCartSynced] = useState(false);
+  const [cart, dispatch] = useReducer(cartReducer, initialCartState);
+  const addToCart = (itemId) => {
+    const newCart = cartReducer(cart, { type: CartTypes.ADD, itemId });
+    dispatch({ type: CartTypes.ADD, itemId });
+    if (currentUser?.username) {
+      console.log('🚀 Immediately saving new cart to DB:', newCart);
+      axios.post('/api/cart', { cartItems: newCart }).catch(console.error);
+    }
+  };
 
   useEffect(() => {
     axios.get('/api/items')
@@ -53,9 +43,23 @@ function App() {
 
   useEffect(() => {
     axios.get('/api/auth/current-user')
-      .then((result) => setCurrentUser(result.data))
+      .then(async (result) => {
+        setCurrentUser(result.data);
+        if (result.data?.username) {
+          const cartRes = await axios.get('/api/cart');
+          dispatch({ type: CartTypes.SYNC_FROM_SERVER, payload: cartRes.data });
+          setCartSynced(true);
+        }
+      })
       .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (currentUser?.username && cartSynced) {
+      console.log('CART STATE (about to save):', cart);
+      axios.post('/api/cart', { cartItems: cart }).catch(console.error);
+    }
+  }, [cart, currentUser?.username, cartSynced]);
 
   const currentUserContextValue = useMemo(
     () => ({ currentUser, setCurrentUser }),
@@ -67,7 +71,7 @@ function App() {
       <CurrentUserContext.Provider
         value={currentUserContextValue}
       >
-        <Header cart={cart} />
+        <Header cart={cart} dispatch={dispatch} />
         {items.length === 0
           ? <div>Loading...</div>
           : (

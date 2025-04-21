@@ -1,12 +1,27 @@
-import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import PropTypes from 'prop-types';
+import CurrentUserContext from '../contexts/CurrentUserContext';
+import { CartTypes } from '../reducers/cartReducer';
 import CompanyLogo from '../images/pathfinder.png';
 import CartIcon from '../images/cart.svg';
 import UserDetails from './UserDetails';
 import './Header.css';
 
-function Header({ cart }) {
+function Header({ cart, dispatch }) {
+  const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
+  const navigate = useNavigate();
+
   const cartQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  const handleLogout = async () => {
+    await axios.post('/api/auth/logout');
+    setCurrentUser({});
+    dispatch({ type: CartTypes.EMPTY });
+    navigate('/login');
+  };
+
   return (
     <header className="header-component">
       <Link to="/" className="brand-link">
@@ -24,12 +39,16 @@ function Header({ cart }) {
           <div className="cart-badge">{cartQuantity}</div>
         </Link>
         <UserDetails />
+        {currentUser?.username && (
+          <button type="button" onClick={handleLogout} className="logout-button">
+            Logout
+          </button>
+        )}
       </div>
     </header>
   );
 }
 
-// PropTypes for type-checking
 Header.propTypes = {
   cart: PropTypes.arrayOf(
     PropTypes.shape({
@@ -37,6 +56,7 @@ Header.propTypes = {
       quantity: PropTypes.number.isRequired,
     }),
   ).isRequired,
+  dispatch: PropTypes.func.isRequired,
 };
 
 export default Header;
